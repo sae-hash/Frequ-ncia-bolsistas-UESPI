@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Login - Frequência Bolsistas</title>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f6f8;
+    margin: 0;
+    min-height: 100vh;
+}
+
+/* Cabeçalho */
+.header {
+    background-color: #004a8f; /* Azul institucional */
+    color: #fff;
+    padding: 12px 20px;
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logo {
+    height: 50px;
+}
+
+.title h1 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.title span {
+    font-size: 13px;
+    opacity: 0.9;
+}
+
+/* Login */
+.login-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: calc(100vh - 74px);
+}
+
+.login-container {
+    background-color:#fff;
+    padding:30px 40px;
+    border-radius:8px;
+    box-shadow:0 2px 12px rgba(0,0,0,0.15);
+    width:320px;
+}
+
+.login-container h2 {
+    text-align:center;
+    margin-bottom:20px;
+    color:#004a8f;
+}
+
+.login-container input[type="email"],
+.login-container input[type="password"] {
+    width:100%;
+    padding:10px;
+    margin:8px 0;
+    border:1px solid #ccc;
+    border-radius:4px;
+    box-sizing:border-box;
+}
+
+.login-container button {
+    width:100%;
+    padding:10px;
+    margin-top:15px;
+    border:none;
+    border-radius:4px;
+    background-color:#004a8f;
+    color:#fff;
+    font-size:16px;
+    cursor:pointer;
+}
+
+.login-container button:hover {
+    background-color:#00396d;
+}
+
+.error { 
+    color:red; 
+    text-align:center; 
+    margin-top:10px; 
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+    <div class="header-content">
+        <img src="assets/logo-uespi.png" alt="Logo UESPI" class="logo">
+        <div class="title">
+            <h1>Universidade Estadual do Piauí</h1>
+            <span>Sistema de Frequência de Bolsistas</span>
+        </div>
+    </div>
+</header>
+
+<div class="login-wrapper">
+    <div class="login-container">
+        <h2>Frequência Bolsistas</h2>
+        <input type="email" id="email" placeholder="E-mail institucional" required>
+        <input type="password" id="senha" placeholder="Senha" required>
+        <button onclick="login()">Entrar</button>
+        <div class="error" id="erroLogin"></div>
+    </div>
+</div>
+
+<script>
+// Senha geral
+const senhaGeral = "UESPI1986";
+// Administrador
+const adminEmail = "bolsatrabalho@prex.uespi.br";
+
+// Função de login
+function login(){
+    const email = document.getElementById("email").value.trim().toLowerCase();
+    const senha = document.getElementById("senha").value.trim();
+
+    // Verifica e-mail institucional
+    if(!email.endsWith("uespi.br")){
+        document.getElementById("erroLogin").innerText = "Use um e-mail institucional válido (uespi.br)";
+        return;
+    }
+
+    // Verifica senha
+    if(senha !== senhaGeral){
+        document.getElementById("erroLogin").innerText = "Senha incorreta";
+        return;
+    }
+
+    // Salva coordenador logado
+    sessionStorage.setItem("coordenadorLogado", email);
+
+    // Redireciona para tabela
+    window.location.href = "tabela.html";
+}
+</script>
+
+</body>
+</html>
