@@ -1,0 +1,119 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Frequência Bolsistas</title>
+<style>
+body{font-family:Arial;background:#f4f6f8;padding:20px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{border:1px solid #ccc;padding:6px;text-align:center}
+th{background:#eee}
+select,input{width:100%}
+.msg{margin:10px 0;color:green}
+</style>
+</head>
+<body>
+
+<h2>Frequência de Bolsistas</h2>
+<div id="info"></div>
+<div class="msg" id="msg"></div>
+
+<table>
+<thead id="thead"></thead>
+<tbody id="tbody"></tbody>
+</table>
+
+<script>
+const URL = "https://script.google.com/macros/s/AKfycbxbUlaxQVXFDN5aNde6t1RQMPw9yCXLdUmDrELHwDsYVPd9YF_ziOPf61RyGlAd0MzmOQ/exec";
+const email = sessionStorage.getItem("coordenadorLogado");
+
+if(!email){
+  alert("Acesso inválido");
+  location.href="index.html";
+}
+
+document.getElementById("info").innerText = "Logado como: " + email;
+
+fetch(`${URL}?acao=listar&email=${email}`)
+.then(r=>r.json())
+.then(d=>{
+  montarTabela(d.cabecalho,d.dados);
+})
+.catch(()=>alert("Erro ao carregar dados"));
+
+function montarTabela(cab, dados){
+  document.getElementById("thead").innerHTML =
+    "<tr>"+cab.map(h=>`<th>${h}</th>`).join("")+"</tr>";
+
+  const tbody=document.getElementById("tbody");
+  dados.forEach((l,i)=>{
+    const tr=document.createElement("tr");
+
+    l.forEach((v,j)=>{
+      let td=document.createElement("td");
+
+      if(j>=7 && j<=18){
+        td.innerHTML=`<select>
+          <option value=""></option>
+          <option ${v==="X"?"selected":""}>X</option>
+          <option ${v==="F"?"selected":""}>F</option>
+        </select>`;
+      } else if(j===19){
+        td.innerHTML=`<input type="text" value="${v||""}">`;
+      } else if(j===20){
+        td.innerHTML=`<input type="file">`;
+      } else {
+        td.innerText=v||"";
+      }
+      tr.appendChild(td);
+    });
+
+    tbody.appendChild(tr);
+  });
+}
+
+function salvar(){
+  document.querySelectorAll("tbody tr").forEach(tr=>{
+    const tds=tr.querySelectorAll("td");
+    const matricula=tds[2].innerText;
+
+    const meses={};
+    ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"]
+    .forEach((m,i)=>meses[m]=tds[7+i].querySelector("select").value);
+
+    const justificativa=tds[19].querySelector("input").value;
+    const fileInput=tds[20].querySelector("input");
+    const file=fileInput.files[0];
+
+    if(file){
+      const r=new FileReader();
+      r.onload=()=>{
+        enviar(matricula,meses,justificativa,file,r.result.split(",")[1]);
+      };
+      r.readAsDataURL(file);
+    } else {
+      enviar(matricula,meses,justificativa,null,null);
+    }
+  });
+}
+
+function enviar(mat,meses,just,file,base64){
+  fetch(URL,{
+    method:"POST",
+    body:JSON.stringify({
+      matricula:mat,
+      meses,
+      justificativa:just,
+      nomeArquivo:file?.name||"",
+      tipoArquivo:file?.type||"",
+      arquivoBase64:base64||""
+    })
+  }).then(()=>document.getElementById("msg").innerText="Dados enviados com sucesso ✔");
+}
+</script>
+
+<button onclick="salvar()">💾 Salvar</button>
+
+</body>
+</html>
